@@ -1,0 +1,55 @@
+---
+
+- name: install Docker
+  yum:
+    name: "{{ packages }}"
+    update_cache: yes
+    state: present
+  vars:
+    packages:
+    - docker
+  notify: "start docker"
+
+#- name: Configure overlay2 storage driver
+#  copy:
+#    dest: /etc/docker/daemon.json
+#    content: |
+#      {
+#        "storage-driver": "overlay2",
+#        "storage-opts": [
+#          "overlay2.override_kernel_check=true"
+#        ]
+#      }
+
+# Using storage config Option A
+# See https://docs.openshift.com/container-platform/3.10/install/host_preparation.html#configuring-docker-thin-pool
+- name: Write docker storage config to docker-storage-setup 
+  copy:
+    content: |
+      DEVS=sdb
+      VG=docker-vg
+    dest: '/etc/sysconfig/docker-storage-setup'
+  register: docker_storage
+
+- name: Run docker-storage-setup 
+  command: docker-storage-setup
+  when: docker_storage.changed
+
+- name: Enable the docker service
+  systemd:
+    name: docker
+    enabled: yes
+    masked: no
+    state: started
+
+- name: Setup log maximums
+  lineinfile:
+    dest: /etc/sysconfig/docker
+    backup: true
+    regexp: '^OPTIONS='
+    line: "OPTIONS='--log-driver=json-file --signature-verification=false --log-opt max-size=1M --log-opt max-file=3'"
+
+- name: Restart docker
+  systemd:
+    state: restarted
+    name: docker

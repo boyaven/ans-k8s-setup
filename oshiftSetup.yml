@@ -1,0 +1,23 @@
+---
+- hosts: adminnode
+  roles:
+  - machinePrep
+  tasks:
+  - name: Install Ansible and installers for OpenShift
+    yum:
+      name: "{{ packages }}"
+      update_cache: yes
+      state: latest
+    vars:
+      packages:
+      - ansible
+      - atomic
+      - openshift-ansible
+
+  - name: Reboot the Admnin node with installers
+    reboot:
+
+- hosts: oshiftMachines
+  roles:
+  - machinePrep
+  - dockerConfig
