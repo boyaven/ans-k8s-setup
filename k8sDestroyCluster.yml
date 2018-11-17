@@ -1,0 +1,10 @@
+---
+- hosts: k8smaster
+  tasks:
+  - name: Draining and deleting all nodes in cluster
+    shell: |
+      kubectl drain {{ ansible_hostname }} --delete-local-data --force --ignore-daemonsets
+      kubectl delete node {{ ansible_hostname }}
+
+  - name: Resetting nodes
+    shell: kubeadm reset -f --ignore-preflight-errors all

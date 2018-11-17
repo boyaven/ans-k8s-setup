@@ -1,20 +1,24 @@
-[oshiftMachines]
-ocmaster.jody.org ansible_host=192.168.1.230
-ocnode1.jody.org ansible_host=192.168.1.231
-ocnode2.jody.org ansible_host=192.168.1.232
-ocnode3.jody.org ansible_host=192.168.1.233
+[all:vars]
+ansible_user=k8suser
+ssh_pub_key_file=~/.ssh/id_oshift.pub
+
+[k8sMachines]
+k8smaster.jody.org ansible_host=192.168.1.250
+k8snode1.jody.org ansible_host=192.168.1.251
+k8snode2.jody.org ansible_host=192.168.1.252
+k8snode3.jody.org ansible_host=192.168.1.253
 
 [adminnode]
 adminnode.jody.org ansible_host=192.168.1.242
 
-[ocmaster]
-ocmaster.jody.org ansible_host=192.168.1.230
+[k8smaster]
+k8smaster.jody.org ansible_host=192.168.1.250
 
-[ocnode1]
-ocnode1.jody.org ansible_host=192.168.1.231
+[k8snode1]
+k8snode1.jody.org ansible_host=192.168.1.251
 
-[ocnode2]
-ocnode2.jody.org ansible_host=192.168.1.232
+[k8snode2]
+k8snode2.jody.org ansible_host=192.168.1.252
 
-[ocnode3]
-ocnode3.jody.org ansible_host=192.168.1.233
+[k8snode3]
+k8snode3.jody.org ansible_host=192.168.1.253

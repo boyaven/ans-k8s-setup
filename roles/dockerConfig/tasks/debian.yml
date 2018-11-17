@@ -1,12 +1,13 @@
 ---
 - name: Remove old versions of docker
   apt:
-    name: "{{ item }}"
+    name: "{{ packages }}"
     state: absent
-  with_items:
-   - docker
-   - docker-engine
-   - docker.io
+  vars:
+    packages:
+    - docker
+    - docker-engine
+    - docker.io
 
 - name: Add docker GPG key
   apt_key:
@@ -22,16 +23,24 @@
 
 - name: Install docker
   apt:
-    name: "{{ item }}"
-    state: latest
-  with_items:
-   - "{{ docker_package }}"
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+    - "{{ docker_package }}"
   notify: "start docker"
 
 - name: Install docker for python
   pip:
-    name: "{{ item }}"
+    name: "{{ packages }}"
     state: latest
     extra_args: --ignore-installed
-  with_items:
-   - docker
+  vars:
+    packages:
+    - docker
+
+- name: Enable docker service
+  systemd:
+    name: docker
+    enabled: yes
+    state: started

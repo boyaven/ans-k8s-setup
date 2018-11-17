@@ -1,0 +1,52 @@
+---
+- hosts: k8sMachines
+  become: False
+  gather_facts: False
+  connection: local
+  vars:
+    host_key_checking: False
+  tasks:
+  - name: Get hostkeys of inventory hostnames
+    shell: "ssh-keyscan -t ed25519 {{ inventory_hostname }}"
+    register: hostkey_name
+
+  - name: Write hostname hostkeys to known_hosts
+    lineinfile:
+      dest: ~/.ssh/known_hosts
+      line: "{{hostkey_name.stdout}}"
+
+  - name: Get hostkeys of inventory host IPs
+    shell: "ssh-keyscan -t ed25519 {{ ansible_host }}"
+    register: hostkey_ip
+
+  - name: Write IP hostkeys to known_hosts
+    lineinfile:
+      dest: ~/.ssh/known_hosts
+      line: "{{hostkey_ip.stdout}}"
+
+
+- hosts: k8sMachines
+  become: True
+  gather_facts: False
+  tasks:
+  - name: install python 2
+    raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+
+- hosts: k8sMachines
+  become: True
+  tasks:
+  - name: setup SSH key
+    authorized_key:
+      user: "{{ ansible_user }}"
+      state: present
+      key: '{{ item }}'
+    with_file:
+      - "{{ ssh_pub_key_file }}"
+
+  - name: setup passwordless sudo for sudo group
+    lineinfile:
+      path: /etc/sudoers
+      state: present
+      regexp: '^%sudo'
+      line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+      validate: 'visudo -cf %s'

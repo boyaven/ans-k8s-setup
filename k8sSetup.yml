@@ -1,0 +1,5 @@
+---
+- hosts: k8sMachines
+  roles:
+  - machinePrep
+  - dockerConfig
